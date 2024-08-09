@@ -1,29 +1,39 @@
-function RunTest() {
-    var fName = document.getElementById('fName').value;
-    var lName = document.getElementById('lName').value;
-    var email = document.getElementById('email').value;
-    var password = document.getElementById('password').value;
-    var confirmPassword = document.getElementById('confirmPassword').value;
-    var termsCond = document.getElementById('customCheck1');
-
-    var NameReg = /^([a-zA-Z])/;
-    var EmailReg = /([a-z\d_-]+)@([a-z\d_-]+)\.[a-z]{2,4}/;
-    var PasswordReg = /^([a-zA-Z0-9]{6,10})/;
-
-    var dataObj = {};
-
-    if (fName.match(NameReg)) {
-        document.getElementById("fNameError").innerText = "";
-        dataObj.fName = fName;
-    } else {
-        document.getElementById("fNameError").innerText = "Please Enter First Name";
-        document.getElementById('fNameError').setAttribute('class', "text-danger");
-        return false;
+window.addEventListener("load", () => {
+    if (localStorage.getItem("user")) {
+        window.location.replace("../index.html");
     }
+});
+// import { createUserWithEmailAndPassword,db,doc,setDoc, auth, signInWithEmailAndPassword } from "./firestore.js";
+const signup = async () => {
+      var fName = document.querySelector('#fName').value;
+      var lName = document.querySelector('#lName').value;
+      var email = document.querySelector('#email').value;
+      var password = document.querySelector('#password').value;
+      var confirmPassword = document.getElementById('confirmPassword').value;
+      var termsCond = document.getElementById('customCheck1');
+      
+      var NameReg = /^([a-zA-Z])/;
+      var EmailReg = /([a-z\d_-]+)@([a-z\d_-]+)\.[a-z]{2,4}/;
+      var PasswordReg = /^([a-zA-Z0-9]{6,10})/;
+      
+      var dataObj = {};
+      
 
-    if (lName.match(NameReg)) {
-        document.getElementById("lNameError").innerText = "";
-        dataObj.lName = lName;
+      // validation
+             
+      
+      if (fName.match(NameReg)) {
+          document.getElementById("fNameError").innerText = "";
+          dataObj.fName = fName;
+                } else {
+                    document.getElementById("fNameError").innerText = "Please Enter First Name";
+                    document.getElementById('fNameError').setAttribute('class', "text-danger");
+                    return false;
+                }
+                
+                if (lName.match(NameReg)) {
+                    document.getElementById("lNameError").innerText = "";
+                    dataObj.lName = lName;
     } else {
         document.getElementById("lNameError").innerText = "Please Enter Last Name";
         document.getElementById('lNameError').setAttribute('class', "text-danger");
@@ -38,7 +48,7 @@ function RunTest() {
         document.getElementById('emailError').setAttribute('class', "text-danger");
         return false;
     }
-
+    
     if (password.match(PasswordReg)) {
         document.getElementById("passwordError").innerText = "";
         if (password === confirmPassword) {
@@ -69,15 +79,24 @@ function RunTest() {
                 closeModal: true,
             }
         })
-            .then(() => {
-                location = './login.html'
-            });
-
+        .then(() => {
+            location = './login.html'
+        });
+        
     } else {
         document.getElementById("termsCondError").innerText = "You must agree before submitting.";
         document.getElementById('termsCondError').setAttribute('class', "text-danger");
         return false;
     }
+    const response = await createUserWithEmailAndPassword(
+        auth,
+        email.value,
+        password.value
+    );
+    const uid = response.user.uid;
+      
+    
+    const userResponse = await setDoc(doc(db, "users", uid), userObj);
 }
 
 function resetForm() {
@@ -89,12 +108,14 @@ function resetForm() {
     document.getElementById('customCheck1').removeAttribute('checked');
 }
 
-function logIn() {
+const logIn = async () => {
     var email = document.getElementById('email').value;
     var password = document.getElementById('password').value;
-
+    
     var EmailReg = /([a-z\d_-]+)@([a-z\d_-]+)\.[a-z]{2,4}/;
     var PasswordReg = /^([a-zA-Z0-9]{6,10})/;
+    
+    // validation
 
     if (email.match(EmailReg)) {
         document.getElementById("emailError").innerText = "";
@@ -129,7 +150,7 @@ function logIn() {
     }
     var localEmail = getObj.email;
     var localPassword = getObj.password;
-
+    
     if (email === localEmail) {
         if (password === localPassword) {
             swal({
@@ -144,10 +165,10 @@ function logIn() {
                 .then(() => {
                     location = './dashboard.html'
                 });
-
-        } else {
-            swal({
-                title: "Password is not Correct",
+                
+            } else {
+                swal({
+                    title: "Password is not Correct",
                 text: "Your input password is not correct",
                 icon: "error",
                 button: {
@@ -167,10 +188,16 @@ function logIn() {
                 closeModal: true,
             }
         })
-            .then(() => {
-                location = './login.html'
+        .then(() => {
+            location = './login.html'
             });
     }
+    const response = await signInWithEmailAndPassword(
+        auth,
+        email.value,
+        password.value
+    );
+    console.log("respoonse", response.user.uid);
 }
 
 function userName() {
@@ -184,9 +211,9 @@ function userName() {
                 closeModal: true,
             }
         })
-            .then(() => {
-                location = './index.html'
-            });
+        .then(() => {
+            location = './index.html'
+        });
     } else {
         var userFName = (JSON.parse(localStorage.getItem("userInfo"))).fName;
         var userLName = (JSON.parse(localStorage.getItem("userInfo"))).lName;
@@ -218,8 +245,8 @@ function logOut() {
                     });
             }
         });
-}
-
+    }
+    
 (function delBTN() {
     var data1 = document.getElementById('deleteBTN1');
     var data2 = document.getElementById('deleteBTN2');
@@ -283,7 +310,7 @@ function logOut() {
                     });
                 }
             });
-    });
+        });
 })();
 
 
@@ -338,12 +365,12 @@ function logOut() {
                         icon: "success",
                         buttons: true,
                     });
-
+                    
                 }
 
             });
-    });
-    sale3.addEventListener("click", function () {
+        });
+        sale3.addEventListener("click", function () {
         swal({
             title: "Sale this Item?",
             text: "Do you want to sale this item? Confirm by clicking OK",
@@ -366,7 +393,7 @@ function logOut() {
                     });
 
                 }
-
+                
             });
     });
 })()
@@ -385,7 +412,7 @@ function addItem() {
     var buttonSale = document.createElement("button");
     var div4 = document.createElement("div");
     var buttonDel = document.createElement("button");
-
+    
     div1.setAttribute("class", "card");
     div2.setAttribute("class", "card-body");
     h5.setAttribute("class", "card-title");
@@ -396,7 +423,7 @@ function addItem() {
     div4.setAttribute("class", "card-footer");
     buttonDel.setAttribute("type", "button");
     buttonDel.setAttribute("class", "btn btn-outline-danger btn-block");
-
+    
     var h5Text = document.createTextNode(title);
     var pText = document.createTextNode(description);
     var buttonSaleText = document.createTextNode("Sale");
@@ -406,7 +433,7 @@ function addItem() {
     p.appendChild(pText);
     buttonSale.appendChild(buttonSaleText);
     buttonDel.appendChild(buttonDelText);
-
+    
     div2.appendChild(h5);
     div2.appendChild(p);
     div3.appendChild(buttonSale);
@@ -415,9 +442,9 @@ function addItem() {
     div1.appendChild(div2);
     div1.appendChild(div3);
     div1.appendChild(div4);
-
+    
     addData.appendChild(div1);
-
+    
     document.getElementById("AddItem").setAttribute("data-dismiss", "modal");
     document.getElementById('title').value = "";
     document.getElementById('description').value = "";
@@ -441,7 +468,7 @@ function addItem() {
                     });
                 }
             });
-    })
+        })
 
     buttonSale.addEventListener("click", function () {
         swal({
@@ -488,21 +515,21 @@ function soldItems() {
             .then(() => {
                 location = './dashboard.html'
             });
-    } else {
-        var saleItemH5 = JSON.parse(localStorage.getItem("saleItemH5"));
-        var saleItemDesp = JSON.parse(localStorage.getItem("saleItemDesp"));
-    }
+        } else {
+            var saleItemH5 = JSON.parse(localStorage.getItem("saleItemH5"));
+            var saleItemDesp = JSON.parse(localStorage.getItem("saleItemDesp"));
+        }
 
-    for (var i = 0; i < saleItemH5.length; i++) {
+        for (var i = 0; i < saleItemH5.length; i++) {
         var SoldData = document.getElementById("SoldData");
         var title = saleItemH5[i];
         var description = saleItemDesp[i];
-
+        
         var div1 = document.createElement("div");
         var div2 = document.createElement("div");
         var h5 = document.createElement("h5");
         var p = document.createElement("p");
-
+        
         div1.setAttribute("class", "card bg-info text-white");
         div2.setAttribute("class", "card-body");
         h5.setAttribute("class", "card-title");
@@ -513,12 +540,12 @@ function soldItems() {
 
         h5.appendChild(h5Text);
         p.appendChild(pText);
-
+        
         div2.appendChild(h5);
         div2.appendChild(p);
 
         div1.appendChild(div2);
-
+        
         SoldData.appendChild(div1);
     }
 }
@@ -555,3 +582,9 @@ function soldItemsCheck() {
         }
     }
 }
+window.signup = signup;
+window.logIn = logIn;
+window.userName = userName;
+window.logOut = logOut;
+window.addItem = addItem;
+window.soldItems = soldItems;
